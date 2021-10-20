@@ -30,9 +30,72 @@ First, we load in the data we'll be using.
 df_unemploy <- read_csv("data/gender_and_unemployment.csv")
 glimpse(df_unemploy)
 
+df_num_employed <- read_csv("data/DF_num_employed.csv")
+glimpse(df_num_employed)
 ```
+The first set of data we looked at was the rate at which jobs were lost for women and others in sectors of industry. We chose to look as the rate of job loss by gender to account for the uneven distribution of employment in many of these industries.    
+```{r}
 
-The second figure we wanted to look at was Unemployment rates in the US seperated by gender. 
+df_all_vs_women %>%
+  filter(
+    Industry == "Service-providing",
+    Group != "All",
+    Date > "2018-12-1"
+  ) %>%
+  ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
+  geom_line(aes(color = Group)) + 
+  facet_wrap(vars(Industry)) + 
+  scale_color_manual(values = c("blue", "red")) + 
+  theme_common()
+
+
+
+df_all_vs_women %>%
+  filter(
+    Industry == "Education and health services",
+    Group != "All",
+    Date > "2018-12-1"
+  ) %>%
+  ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
+  geom_line(aes(color = Group)) + 
+  facet_wrap(vars(Industry)) + 
+  scale_color_manual(values = c("blue", "red")) + 
+  theme_common()
+
+df_all_vs_women %>%
+  filter(
+    Industry == "Goods-producing",
+    Group != "All",
+    Date > "2018-12-1"
+  ) %>%
+  ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
+  geom_line(aes(color = Group)) + 
+  facet_wrap(vars(Industry)) + 
+  scale_color_manual(values = c("blue", "red")) + 
+  theme_common()
+
+df_all_vs_women %>%
+  filter(
+    Industry == "Total nonfarm",
+    Group != "All",
+    Date > "2018-12-1"
+  ) %>%
+  ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
+  geom_line(aes(color = Group)) + 
+  facet_wrap(vars(Industry)) + 
+  scale_color_manual(values = c("blue", "red")) +
+  theme_common()
+
+```
+**observations**
+In most industries, women job loss was notably higher than non-women job loss but there were a few industries such as goods producing where that trend is reversed. Despite this, we can see from the total nonfarm graph that women lost their jobs proportionately more than others. 
+
+
+
+
+
+
+The second figure we wanted to look at was Unemployment rates in the US separated by gender. 
 
 ```{r}
 df_unemploy %>%

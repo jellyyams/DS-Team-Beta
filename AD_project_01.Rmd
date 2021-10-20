@@ -106,7 +106,7 @@ df_all_vs_women <-
   ) %>%
   ungroup()
 
-
+write.csv(df_all_vs_women, ".\\data\\DF_num_employed.csv")
 
 
 ```
