@@ -33,12 +33,6 @@ glimpse(df_unemploy)
 df_num_employed <- read_csv("data/DF_num_employed.csv")
 glimpse(df_num_employed)
 
-df_industry <-DS_Industry_Top_Level
-df_industry <-
-  df_industry %>%
-  mutate(
-    X4 = (X2/100) * X3
-  )
 ```
 
 
@@ -57,17 +51,7 @@ df_unemploy %>%
 **Observations**:
 Unemployment rates were roughly the same for men and women before the covid-19 pandemic, around 3%. During the pandemic, both men and women experienced a drastic increase in unemployment rates, however unemployment rates for women were about 3% higher than for men. Around October of 2020, after unemployment rates decreased for both men and women, trends returned to patterns we noticed before the pandemic, where unemployment rates for both men and women are about the same. 
 
-```{r}
-OverallPercent <-
-  df_industry %>%
-  ggplot(aes(X1, X2, fill = X2 >= 50)) + 
-  geom_col() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust=1)) +
-  geom_hline(yintercept = 50, linetype = "dashed") 
 
-OverallPercent + ggtitle("Percent of Women Employed in Industry") +
-  xlab("Industry") + ylab("Percent")
-```
 **Observations**:
 There are only a few industries where women make up 50% of the people employed. Additionally there is only one industry that could be considered as female dominted which is Education and Health Services. Education and Health Services is also an industry which is essential and ideally should have experienced the smallest impact on employment. Given how many women work in this indutry, it's interesting that the unemployment rate for women was noticeably higher than men. 
 
@@ -75,7 +59,7 @@ There are only a few industries where women make up 50% of the people employed. 
 We also explored the effects on women employment in individual industries. 
 
 ```{r}
-df_all_vs_women %>%
+df_num_employed %>%
   filter(
     !(Industry %in% c("Nondurable goods", "Total nonfarm", "Service-providing", "Government", "Goods-producing")),
     Group != "All",
@@ -124,7 +108,7 @@ theme_common <- function() {
 
 
 ```{r}
-df_all_vs_women %>%
+df_num_employed %>%
   filter(
     Industry == "Other services",
     Group != "All",
@@ -142,7 +126,7 @@ df_all_vs_women %>%
 
   )
 
-df_all_vs_women %>%
+df_num_employed%>%
   filter(
     Industry == "Education and health services",
     Group != "All",
@@ -160,7 +144,7 @@ df_all_vs_women %>%
 
   )
 
-df_all_vs_women %>%
+df_num_employed %>%
   filter(
     Industry == "Total nonfarm",
     Group != "All",
@@ -185,3 +169,17 @@ The first set of data we looked at was the rate at which jobs were lost for wome
 The unemployment rates increased for both men and women and there are a few industries which are either equal employers or female dominated but we can see that regardless of initial gender ratio in industries, the percent rate of change for women's unemployment was significantly more therefore more women were impacted by the pandemic where it came to employment and job losses.
 
 ## Sources
+
+“CDC Covid Data Tracker.” Centers for Disease Control and Prevention, Centers for Disease Control and         
+\ \ \ \ \ \ Prevention, https://covid.cdc.gov/covid-data-tracker/#demographics. 
+
+“Databases, Tables &amp; Calculators by Subject.” U.S. Bureau of Labor Statistics, U.S. Bureau of Labor Statistics, 
+\ \ \ \ \ \ https://www.bls.gov/data/#unemployment. 
+
+Madgavkar, Anu, et al. “Covid-19 and Gender Equality: Countering the Regressive Effects.” McKinsey &amp; Company, 
+\ \ \ \ \ \ McKinsey &amp; Company, 10 Apr. 2021, https://www.mckinsey.com/featured-insights/future-of-work/covid-19-and-
+\ \ \ \ \ \ gender-equality-countering-the-regressive-effects. 
+
+“Www.unwomen.org.” UNWomen.org, United Nations, 9 Apr. 2020, 
+\ \ \ \ \ \ https://www.unwomen.org/-/media/headquarters/attachments/sections/library/publications/2021/egm-background
+\ \ \ \ \ \ -papers-financing-for-gender-equality-in-the-hiv-response-en.pdf?la=en&amp;vs=5214. 
