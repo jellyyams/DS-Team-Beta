@@ -32,13 +32,6 @@ glimpse(df_unemploy)
 
 df_num_employed <- read_csv("data/DF_num_employed.csv")
 glimpse(df_num_employed)
-
-df_industry <-DS_Industry_Top_Level
-df_industry <-
-  df_industry %>%
-  mutate(
-    X4 = (X2/100) * X3
-  )
 ```
 
 
@@ -58,9 +51,11 @@ df_unemploy %>%
 Unemployment rates were roughly the same for men and women before the covid-19 pandemic, around 3%. During the pandemic, both men and women experienced a drastic increase in unemployment rates, however unemployment rates for women were about 3% higher than for men. Around October of 2020, after unemployment rates decreased for both men and women, trends returned to patterns we noticed before the pandemic, where unemployment rates for both men and women are about the same. 
 
 ```{r}
+df_industry <- read_csv("data/DS_Industry_Top_Level_Percent.csv")
+
 OverallPercent <-
   df_industry %>%
-  ggplot(aes(X1, X2, fill = X2 >= 50)) + 
+  ggplot(aes(Industry, Percent, fill = Percent >= 50)) + 
   geom_col() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust=1)) +
   geom_hline(yintercept = 50, linetype = "dashed") 
