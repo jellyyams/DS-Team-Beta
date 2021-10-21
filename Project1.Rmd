@@ -27,13 +27,39 @@ Both of these sources looked at how the pandemic impacted people globally. Knowi
 First, we load in the data we'll be using. 
 
 ```{r}
-df_unemploy <- read_csv("data/gender_and_unemployment.csv")
-glimpse(df_unemploy)
+cases <- read_csv("./data/Provisional_COVID-19_Deaths_by_Sex_and_Age.csv")
 
+df_unemploy <- read_csv("data/gender_and_unemployment.csv")
 df_num_employed <- read_csv("data/DF_num_employed.csv")
-glimpse(df_num_employed)
+df_industry <- read_csv("data/DS_Industry_Top_Level_Percent.csv")
+
 ```
 
+```{r}
+male_data <- cases %>% 
+  filter(Sex == "Male", State == "United States", Group == "By Month") %>% 
+  mutate(`Start Date` = as.Date(`Start Date`)) %>% 
+  mutate(`End Date` = as.Date(`End Date`, format = "%m/%d/%y"))
+
+female_data <- cases %>% 
+  filter(Sex == "Female", State == "United States", Group == "By Month") %>% 
+  mutate(`Start Date` = as.Date(`Start Date`)) %>% 
+  mutate(`End Date` = as.Date(`End Date`, format = "%m/%d/%y"))
+
+
+```
+
+```{r}
+ggplot() +
+  geom_smooth(data = male_data, aes(x = `End Date`, y = `COVID-19 Deaths`, color = Sex), se = FALSE) + 
+  # geom_point(data = male_data, aes(x = `End Date`, y = `COVID-19 Deaths`), color = "blue") + 
+  geom_smooth(data = female_data, aes(x = `End Date`, y = `COVID-19 Deaths`, color = Sex), se = FALSE) + 
+  # geom_point(data = female_data, aes(x = `End Date`, y = `COVID-19 Deaths`), color = "red") + 
+  ggtitle("Covid Deaths Over Time")
+
+```
+
+From the graph above, we can observe the deaths over time for men and women. Both men and women follow similar trends in number of deaths, with men having one thousand more deaths per day. From April to June, there seems to be a steady decrease in the number of deaths for both men and women. However, there is a drastic increase in the number of deaths for both men and women from the pandemic from October onwards. This phenomenon may be caused by the onset of winter months, where cases frequently increase. 
 
 The second figure we wanted to look at was Unemployment rates in the US separated by gender. 
 
@@ -51,8 +77,6 @@ df_unemploy %>%
 Unemployment rates were roughly the same for men and women before the covid-19 pandemic, around 3%. During the pandemic, both men and women experienced a drastic increase in unemployment rates, however unemployment rates for women were about 3% higher than for men. Around October of 2020, after unemployment rates decreased for both men and women, trends returned to patterns we noticed before the pandemic, where unemployment rates for both men and women are about the same. 
 
 ```{r}
-df_industry <- read_csv("data/DS_Industry_Top_Level_Percent.csv")
-
 OverallPercent <-
   df_industry %>%
   ggplot(aes(Industry, Percent, fill = Percent >= 50)) + 
@@ -96,6 +120,70 @@ theme_common <- function() {
 }
 ```
 
+```{r}
+filename <- "./data/DS_monthly_breakdowns_all.csv"
+df_all <- read_csv(filename)
+
+filename <- "./data/DS_monthly_breakdowns_women.csv"
+df_women <- read_csv(filename)
+```
+
+```{r}
+colnames(df_women)[4] <- "Count_Women"
+
+colnames(df_all)[4] <- "Count_All"
+
+```
+
+
+```{r}
+df_women <-
+  df_women %>%
+  mutate(
+    Date = as.Date(paste(Year, Month, 1, sep = " "), format = '%Y %b %d')
+  )
+
+df_all <-
+  df_all %>%
+  mutate(
+    Date = as.Date(paste(Year, Month, 1, sep = " "), format = '%Y %b %d')
+  )
+```
+
+
+```{r}
+df_all_vs_women <-
+  df_all %>%
+  left_join(df_women) %>%
+  subset(select = c(3,4,5,6))
+```
+
+```{r}
+df_all_vs_women <-
+  df_all_vs_women %>%
+  mutate(
+    Count_notWomen = Count_All - Count_Women
+  ) %>%
+  pivot_longer(
+    names_to = c(".value", "Group"),
+    names_sep = "_",
+    cols = c(Count_All, Count_Women, Count_notWomen)
+  )
+```
+
+
+```{r}
+df_all_vs_women <-
+  df_all_vs_women %>%
+  group_by(Industry, Group) %>%
+  arrange(Industry, Group, Date) %>%
+  mutate(
+    Percent_rate_of_change =  100 * (Count - lag(Count))/lag(Count)
+  ) %>%
+  ungroup()
+
+write.csv(df_all_vs_women, ".\\data\\DF_num_employed.csv")
+```
 
 ```{r}
 df_all_vs_women %>%
@@ -151,6 +239,11 @@ The first set of data we looked at was the rate at which jobs were lost for wome
 
 
 ## Conclusion
+
+When looking at the number of Covid death in the US, we see that more men died of Covid than women. After seeing this data we pivoted our question to focus more on the economic impacts of Covid on different genders rather than just the direct physical impacts of the pandemic. Our second EDA graph revealed that while unemployment rates spiked for both  men and women in the US, women experienced a noticeably more drastic increase in unemployment rates than men. To begin to understand why that might be, we looked at each industry that was categorized by the Bureau of Labor Statistics, and determined which ones were predominantly women. Next, we looked at the percent change in employment rates for women and men in each of those industries. For our final graphs, we examined the 
+
+
+Looking at our final graphs, it's clear that unemployment rates increased for both men and women. However, we were able to see the trends described in the UN report and McKinsey paper-- women experienced a more drastic increase in unemployment rates compared to men during the first few months of the pandemic. Throughout the pandemic, industries that were predominantly women, such as the Education and 
 The unemployment rates increased for both men and women and there are a few industries which are either equal employers or female dominated but we can see that regardless of initial gender ratio in industries, the percent rate of change for women's unemployment was significantly more therefore more women were impacted by the pandemic where it came to employment and job losses.
 
 ## Sources
