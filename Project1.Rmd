@@ -76,6 +76,7 @@ df_unemploy %>%
 **Observations**:
 Unemployment rates were roughly the same for men and women before the covid-19 pandemic, around 3%. During the pandemic, both men and women experienced a drastic increase in unemployment rates, however unemployment rates for women were about 3% higher than for men. Around October of 2020, after unemployment rates decreased for both men and women, trends returned to patterns we noticed before the pandemic, where unemployment rates for both men and women are about the same. 
 
+
 ```{r}
 OverallPercent <-
   df_industry %>%
@@ -87,8 +88,30 @@ OverallPercent <-
 OverallPercent + ggtitle("Percent of Women Employed in Industry") +
   xlab("Industry") + ylab("Percent")
 ```
+
 **Observations**:
 There are only a few industries where women make up 50% of the people employed. Additionally there is only one industry that could be considered as female dominted which is Education and Health Services. Education and Health Services is also an industry which is essential and ideally should have experienced the smallest impact on employment. Given how many women work in this indutry, it's interesting that the unemployment rate for women was noticeably higher than men. 
+
+
+We also explored the effects on women employment in individual industries. 
+
+```{r}
+df_num_employed %>%
+  filter(
+    !(Industry %in% c("Nondurable goods", "Total nonfarm", "Service-providing", "Government", "Goods-producing")),
+    Group != "All",
+    Date > "2018-12-1"
+  ) %>%
+  ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
+  geom_line(aes(color = Group)) +
+  facet_wrap(vars(Industry)) +
+  scale_color_manual(values = c("blue", "red"))
+
+```
+**observations**
+When looking at the individual industry graphs, we can see that very few industries have a negative spike where women do not lose jobs faster than everyone else. In several industries such as Information and Financial Activities the percent rate of change is fairly even. In the Services industries, Retail, and Education, the spike for women is much worse than that of their other coworkers. 
+
+
 
 ## Final Graphs
 ```{r}
@@ -186,19 +209,25 @@ write.csv(df_all_vs_women, ".\\data\\DF_num_employed.csv")
 ```
 
 ```{r}
-df_all_vs_women %>%
+df_num_employed %>%
   filter(
-    Industry == "Service-providing",
+    Industry == "Other services",
     Group != "All",
     Date > "2018-12-1"
   ) %>%
   ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
   geom_line(aes(color = Group)) + 
-  facet_wrap(vars(Industry)) + 
-  scale_color_manual(values = c("blue", "red")) + 
-  theme_common()
+  scale_color_manual(labels = c("Other", "Women"), values = c("blue", "red")) + 
+  theme_common() + 
+  labs(
+    y = "Percent rate of change of employed",
+    x = "Date",
+    title = "United States Services Industry",
+    color = "Gender"
 
-df_all_vs_women %>%
+  )
+
+df_num_employed%>%
   filter(
     Industry == "Education and health services",
     Group != "All",
@@ -206,23 +235,17 @@ df_all_vs_women %>%
   ) %>%
   ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
   geom_line(aes(color = Group)) + 
-  facet_wrap(vars(Industry)) + 
-  scale_color_manual(values = c("blue", "red")) + 
-  theme_common()
+  scale_color_manual(labels = c("Other", "Women"), values = c("blue", "red")) + 
+  theme_common() + 
+  labs(
+    y = "Percent rate of change of employed",
+    x = "Date",
+    title = "Education and Health Services Industry in the United States",
+    color = "Gender"
 
-df_all_vs_women %>%
-  filter(
-    Industry == "Goods-producing",
-    Group != "All",
-    Date > "2018-12-1"
-  ) %>%
-  ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
-  geom_line(aes(color = Group)) + 
-  facet_wrap(vars(Industry)) + 
-  scale_color_manual(values = c("blue", "red")) + 
-  theme_common()
+  )
 
-df_all_vs_women %>%
+df_num_employed %>%
   filter(
     Industry == "Total nonfarm",
     Group != "All",
@@ -230,9 +253,14 @@ df_all_vs_women %>%
   ) %>%
   ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
   geom_line(aes(color = Group)) + 
-  facet_wrap(vars(Industry)) + 
-  scale_color_manual(values = c("blue", "red")) +
-  theme_common()
+  scale_color_manual(labels = c("Other", "Women"), values = c("blue", "red")) +
+  theme_common() +
+  labs(
+    y = "Percent rate of change of employed",
+    x = "Date",
+    title = "Overall Employment in the United States",
+    color = "Gender"
+  )
 ```
 **Observations**
 The first set of data we looked at was the rate at which jobs were lost for women and others in sectors of industry. We chose to look as the rate of job loss by gender to account for the uneven distribution of employment in many of these industries. In most industries, women job loss was notably higher than non-women job loss but there were a few industries such as goods producing where that trend is reversed. Despite this, we can see from the total nonfarm graph that women lost their jobs proportionately more than others. 
@@ -247,3 +275,17 @@ To begin to understand why that might be, we looked at each industry that was ca
 Unsurprisingly, our findings corroborate those that were stated in the UN report and McKinsey article. It's a commonly recognized reality that events like a pandemic serve to exacerbate existing inequalities, whether that's in regards to race, gender, or wealth. In going through these processes of retrieving raw data, shaping it into usable information, and visualizing it to examine patterns and outliers, we hope to gain a better understanding of how data can be used to educate us about ways in which our systems can be improved. 
 
 ## Sources
+
+“CDC Covid Data Tracker.” Centers for Disease Control and Prevention, Centers for Disease Control and         
+\ \ \ \ \ \ Prevention, https://covid.cdc.gov/covid-data-tracker/#demographics. 
+
+“Databases, Tables &amp; Calculators by Subject.” U.S. Bureau of Labor Statistics, U.S. Bureau of Labor Statistics, 
+\ \ \ \ \ \ https://www.bls.gov/data/#unemployment. 
+
+Madgavkar, Anu, et al. “Covid-19 and Gender Equality: Countering the Regressive Effects.” McKinsey &amp; Company, 
+\ \ \ \ \ \ McKinsey &amp; Company, 10 Apr. 2021, https://www.mckinsey.com/featured-insights/future-of-work/covid-19-and-
+\ \ \ \ \ \ gender-equality-countering-the-regressive-effects. 
+
+“Www.unwomen.org.” UNWomen.org, United Nations, 9 Apr. 2020, 
+\ \ \ \ \ \ https://www.unwomen.org/-/media/headquarters/attachments/sections/library/publications/2021/egm-background
+\ \ \ \ \ \ -papers-financing-for-gender-equality-in-the-hiv-response-en.pdf?la=en&amp;vs=5214. 
