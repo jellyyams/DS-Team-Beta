@@ -1,0 +1,211 @@
+---
+title: "COVID-19"
+author: "Andrew DeCandia"
+date: 10/6/2021
+output:
+  github_document:
+    toc: true
+---
+
+```{r setup}
+library(tidyverse)
+library(ggrepel)
+```
+
+
+```{r}
+theme_common <- function() {
+  theme_minimal() %+replace%
+  theme(
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(margin = margin(4, 4, 4, 4), size = 16),
+    axis.title.y = element_text(margin = margin(4, 4, 4, 4), size = 16, angle = 90),
+
+    legend.title = element_text(size = 16),
+    legend.text = element_text(size = 12),
+
+    strip.text.x = element_text(size = 12),
+    strip.text.y = element_text(size = 12),
+
+    panel.grid.major = element_line(color = "grey90"),
+    panel.grid.minor = element_line(color = "grey90"),
+
+    aspect.ratio = 4 / 4,
+
+    plot.margin = unit(c(t = +0, b = +0, r = +0, l = +0), "cm"),
+    plot.title = element_text(size = 18),
+    plot.title.position = "plot",
+    plot.subtitle = element_text(size = 16),
+    plot.caption = element_text(size = 12)
+  )
+}
+```
+
+
+
+```{r, results ='hide'}
+filename <- "./data/DS_monthly_breakdowns_all.csv"
+df_all <- read_csv(filename)
+
+filename <- "./data/DS_monthly_breakdowns_women.csv"
+df_women <- read_csv(filename)
+```
+
+```{r}
+colnames(df_women)[4] <- "Count_Women"
+
+colnames(df_all)[4] <- "Count_All"
+
+```
+
+
+```{r}
+df_women <-
+  df_women %>%
+  mutate(
+    Date = as.Date(paste(Year, Month, 1, sep = " "), format = '%Y %b %d')
+  )
+
+df_all <-
+  df_all %>%
+  mutate(
+    Date = as.Date(paste(Year, Month, 1, sep = " "), format = '%Y %b %d')
+  )
+```
+
+
+```{r}
+df_all_vs_women <-
+  df_all %>%
+  left_join(df_women) %>%
+  subset(select = c(3,4,5,6))
+```
+
+```{r}
+df_all_vs_women <-
+  df_all_vs_women %>%
+  mutate(
+    Count_notWomen = Count_All - Count_Women
+  ) %>%
+  pivot_longer(
+    names_to = c(".value", "Group"),
+    names_sep = "_",
+    cols = c(Count_All, Count_Women, Count_notWomen)
+  )
+```
+
+
+```{r}
+df_all_vs_women <-
+  df_all_vs_women %>%
+  group_by(Industry, Group) %>%
+  arrange(Industry, Group, Date) %>%
+  mutate(
+    Percent_rate_of_change =  100 * (Count - lag(Count))/lag(Count)
+  ) %>%
+  ungroup()
+
+write.csv(df_all_vs_women, ".\\data\\DF_num_employed.csv")
+
+
+```
+
+
+```{r}
+
+
+df_all_vs_women %>%
+  filter(
+    Group != "All",
+    Date > "2018-12-1"
+  ) %>%
+  ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
+  geom_line(aes(color = Group)) + 
+  facet_wrap(vars(Industry))
+
+
+df_all_vs_women %>%
+  filter(
+    Industry == "Retail trade",
+    Group != "All",
+    Date > "2018-12-1"
+  ) %>%
+  ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
+  geom_line(aes(color = Group)) + 
+  facet_wrap(vars(Industry)) +
+  scale_color_manual(values = c("blue", "red")) + 
+  theme_common()
+
+
+
+df_all_vs_women %>%
+  filter(
+    Industry == "Service-providing",
+    Group != "All",
+    Date > "2018-12-1"
+  ) %>%
+  ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
+  geom_line(aes(color = Group)) + 
+  facet_wrap(vars(Industry)) + 
+  scale_color_manual(values = c("blue", "red")) + 
+  theme_common()
+
+
+
+df_all_vs_women %>%
+  filter(
+    Industry == "Education and health services",
+    Group != "All",
+    Date > "2018-12-1"
+  ) %>%
+  ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
+  geom_line(aes(color = Group)) + 
+  facet_wrap(vars(Industry)) + 
+  scale_color_manual(values = c("blue", "red")) + 
+  theme_common()
+
+
+df_all_vs_women %>%
+  filter(
+    Industry == "Total nonfarm",
+    Group != "All",
+    Date > "2018-12-1"
+  ) %>%
+  ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
+  geom_line(aes(color = Group)) + 
+  facet_wrap(vars(Industry)) + 
+  scale_color_manual(values = c("blue", "red")) +
+  theme_common()
+
+
+df_all_vs_women %>%
+  filter(
+    Industry == "Goods-producing",
+    Group != "All",
+    Date > "2018-12-1"
+  ) %>%
+  ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
+  geom_line(aes(color = Group)) + 
+  facet_wrap(vars(Industry)) + 
+  scale_color_manual(values = c("blue", "red")) + 
+  theme_common()
+
+
+df_all_vs_women %>%
+  filter(
+    Industry == "Construction",
+    Group != "All",
+    Date > "2018-12-1"
+  ) %>%
+  ggplot(aes(x = Date, y = Percent_rate_of_change)) + 
+  geom_line(aes(color = Group)) + 
+  facet_wrap(vars(Industry)) + 
+  scale_color_manual(values = c("blue", "red")) + 
+  theme_common()
+```
+
+
+
+
+
